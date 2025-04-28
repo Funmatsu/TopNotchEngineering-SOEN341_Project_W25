@@ -3,10 +3,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const childDiv = document.getElementById('menu');
 
     parentDiv.addEventListener('click', function() {
-        if (childDiv.style.display === 'none' || childDiv.style.display === '') {
-            childDiv.style.display = 'block';
-        } else {
-            childDiv.style.display = 'none';
+        if (childDiv.style.visibility === "hidden") {
+            childDiv.style.visibility = "visible";
+            setTimeout(() => {
+                childDiv.style.opacity = 1; // Hide after fade-out completes
+            }, 1);
+
+        } else{
+            childDiv.style.opacity = 0;
+            setTimeout(() => {
+                childDiv.style.visibility = "hidden"; // Hide after fade-out completes
+            }, 1);
         }
     });
 });
@@ -31,29 +38,48 @@ document.querySelector("#add-teams").onclick = function() {
     document.querySelector("#team-addition-form").style.display = "block";
 }
 
-document.getElementById("create-team-button").onclick = function() {
-    generateDiv();
-}
+    document.getElementById("create-team-button").addEventListener("click", async () => {
+        generateDiv();
+        const team_name = document.getElementById("team-name-input").value;
+        const team_desc = document.getElementById("team-desc-input").value;
+        
+        console.log("📤 Sending Data:", { team_name, team_desc }); // ✅ Debugging
+        
+        const response = await fetch("http://localhost:3000/teams", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ team_name, team_desc }) // ✅ Correct property names!
+        });
+    
+        const data = await response.json();
+        if (data.success) {
+            alert("✅ Team created successfully!");
+            document.getElementById("team-name").value = "";
+            document.getElementById("team-description").value = "";
+        } else {
+            alert("❌ Error creating team!");
+        }
+    });
 
 // else alert("It doesnt even exist yet bud!");
 function generateDiv() {
     // Create a new div element
     let newDiv = document.createElement("div");
     let newerDiv = document.createElement("div");
+    let newerDivText = document.createElement("p");
     let roundDiv = document.createElement('div');
 
     // Add content to the new div
-    newDiv.innerHTML = document.getElementById("NameInput").value[0];
-    newerDiv.innerHTML = document.getElementById("NameInput").value;
-    roundDiv.innerHTML = document.getElementById("NameInput").value[0];
-    
-    var r = Math.floor(Math.random() * 256);
-        var g = Math.floor(Math.random() * 256);
-        var b = Math.floor(Math.random() * 256);
+    newDiv.innerHTML = document.getElementById("team-name").value[0];
+    newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong> | ${document.getElementById("team-desc").value}`;
+    roundDiv.innerHTML = document.getElementById("team-name").value[0];
 
-        // Create the RGB string
-        var rgbColor = "rgb(" + r + "," + g + "," + b + ")";
-    document.getElementById("NameInput").value = "";
+    var r = Math.floor(Math.random() * 256);
+    var g = Math.floor(Math.random() * 256);
+    var b = Math.floor(Math.random() * 256);
+
+    var rgbColor = "rgb(" + r + "," + g + "," + b + ")";
+    
     newDiv.setAttribute("style", `position: relative;
         text-align: center;
         top: 5px;
@@ -70,7 +96,9 @@ function generateDiv() {
         margin-bottom: 20px;
         cursor: pointer;
         overflow: hidden;
-        font-size: 30px;`);
+        font-size: 30px;
+        transition: background-color 0.2s ease;
+        transition: padding 0.2s ease, left 0.2s ease;`);
     newDiv.addEventListener("mouseover", function() {
         newDiv.setAttribute("style", 
         `text-align: center;
@@ -94,6 +122,7 @@ function generateDiv() {
         padding: 22px;
         padding-top: 18px;
         padding-bottom: 24px;
+        transition: padding 0.2s ease, left 0.2s ease;
         `);
     });
     newDiv.addEventListener("mouseout", function() {
@@ -113,7 +142,8 @@ function generateDiv() {
             margin-bottom: 20px;
             cursor: pointer;
             overflow: hidden;
-            font-size: 30px;`);
+            font-size: 30px;
+            transition: padding 0.2s ease, left 0.2s ease;`);
     });
     newDiv.className = "generated";
 
@@ -126,7 +156,9 @@ function generateDiv() {
         padding: 15px;
         padding-left: 50px;
         margin-bottom: 10px;
-        border-radius: 20px;`);
+        border-radius: 20px;
+        height: 50px;
+        `);
 
         newerDiv.addEventListener("mouseover", function(){
             newerDiv.setAttribute("style", 
@@ -136,7 +168,10 @@ function generateDiv() {
                 margin-bottom: 10px;
                 padding: 15px;
                 padding-left: 50px;
-                border-radius: 20px;`);
+                border-radius: 20px;
+                height: 50px;
+                transition: background-color 0.2s ease-in-out;
+                `);
         });
 
         newerDiv.addEventListener("mouseout", function(){
@@ -146,7 +181,10 @@ function generateDiv() {
                 margin-bottom: 10px;
                 padding: 15px;
                 padding-left: 50px;
-                border-radius: 20px;`);
+                border-radius: 20px;
+                height: 50px;
+                transition: background-color 0.2s ease-in-out;
+                `);
         });
         
         roundDiv.setAttribute("style", `
@@ -157,14 +195,52 @@ function generateDiv() {
             padding-top: 3px;
             padding-bottom: 3px;
             left: -50px;
-            top: -35px;
+            top: -45px;
             position: relative;
             margin: 10px;
             `);
-        var n = 0;
+    
     newerDiv.id = "generatedNew";
+    let teamname = document.getElementById("team-name").value;
+    newDiv.onclick = function() {
+        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+    }
+    newerDiv.onclick = newDiv.onclick;
+    newerDiv.appendChild(newerDivText);
     document.getElementById("custom-team-container").appendChild(newerDiv);
-    newerDiv.appendChild(roundDiv);
-
+    newerDiv.appendChild(roundDiv);    
+    back.onclick();
+    
 }
 
+const adminPageHeader = document.getElementById("admin-page-header");
+const params = new URLSearchParams(window.location.search);
+const username = params.get("username");
+
+if (username) {
+    adminPageHeader.innerText = `Welcome, ${username}!`;
+}
+
+function fetchTeams() {
+    fetch("http://localhost:3000/teams")
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Fetched teams:", data); // ✅ Debugging
+
+        if (!data.teams || !Array.isArray(data.teams)) {
+            console.error("❌ Expected an array but got:", data);
+            return;
+        }
+
+        const teamsContainer = document.querySelector("#teams-container"); // ✅ Ensure your HTML has an element with this ID
+        teamsContainer.innerHTML = ""; // ✅ Clear existing teams before updating
+
+        data.teams.forEach(team => {
+            document.getElementById("team-name").value = team.name;
+            document.getElementById("team-desc").value = team.description;
+            generateDiv();
+        });
+    })
+    .catch(error => console.error("❌ Error fetching teams:", error));
+}
+document.addEventListener("DOMContentLoaded", fetchTeams());

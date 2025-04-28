@@ -58,6 +58,7 @@
     border-bottom-color: rgb(0, 0, 0);
     font-size: 15px ;
     cursor: pointer;
+    transition: background-color 1s ease;
 }
 .general-button:hover{
     background-color: rgb(44, 121, 202);
@@ -124,6 +125,7 @@ body {
     line-height: 1.5;
     padding-bottom: 20px;
     overflow: auto;
+    transition: background-color 1s ease;
 }
 .custom-body::-webkit-scrollbar {
     width: 12px; /* Width of the scrollbar */
@@ -268,6 +270,7 @@ body {
     padding: 20px;
     border-radius: 25px;
     cursor: pointer;
+    transition: background-color 0.2s ease, padding 0.2s ease, left 0.2s ease;
 }
 
 #return-icon:hover{
@@ -331,7 +334,7 @@ body {
      /* display: none;  *//*
 } */
 
-#NameInput{
+.NameInput{
     position: relative;
     left: -25px;
     border-radius: 50px;    
@@ -369,10 +372,10 @@ body {
     color: white;
 }
 
-#create-team-button {
+#loginbtn {
     position: relative;
     top: 12.5vh;
-    left: 49vw;
+    left: 30vw;
 }
 
 #RoleInput-placeholder {
@@ -406,6 +409,7 @@ body {
     margin-bottom: 10px;
     /* padding-bottom: 30px; */
     border-radius: 20px;
+    transition: background-color 1s ease;
 }
 
 .users-channels:hover {
