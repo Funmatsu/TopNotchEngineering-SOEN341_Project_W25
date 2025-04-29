@@ -319,6 +319,8 @@ body {
     background: transparent;
     text-align: center;
     margin-top: 100px;
+    height: fit-content;
+    /* overflow-y: hidden; */
 }
 
 #avatar {
@@ -330,9 +332,21 @@ body {
     margin: 10px;
 }
 
-/* .user-list {
-     /* display: none;  *//*
+#username{
+    position: relative;
+    top: 0px;
+}
+
+/* #password{
+    position: relative;
+    top:30px;
 } */
+
+#email{
+    position: relative;
+    /* left: -260px; */
+    top: 60px;
+}
 
 .NameInput{
     position: relative;
@@ -376,6 +390,12 @@ body {
     position: relative;
     top: 12.5vh;
     left: 30vw;
+}
+
+#EmailInput-placeholder{
+    position: relative;
+    left: -500px;
+    top: 60px;
 }
 
 #RoleInput-placeholder {

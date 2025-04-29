@@ -71,17 +71,48 @@
         </div>
         
         <script>
+            
+            // let storedMsg;
+            // setTimeout(() => {
+            //     storedMsg = document.getElementById("text-bar").value;
+            //     location.reload();
+            // }, 5000); // ✅ Reloads every 5 seconds
+
+            // document.addEventListener("DOMContentLoaded", () => {
+            //     document.getElementById("text-bar").value = storedMsg;
+            // });
+            
             const adminPageHeader = document.getElementById("admin-page-header");
             const params = new URLSearchParams(window.location.search);
-            const username = params.get("username");
+            let username = params.get("username");
+            let team_name = params.get("teamname");
+
+            const ws = new WebSocket("ws://localhost:8080"); // ✅ Connect to WebSocket server
+
+            ws.onmessage = async (event) => {
+                console.log("📥 Incoming message:", event.data);
+                document.getElementById("text-bar").value += await event.data.text();
+                generateDiv();
+                scrollToBottom();
+            };
 
             document.getElementById("text-bar").addEventListener("keypress", function(event) {
                 if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
-                    generateDiv();
-                    scrollToBottom();
+                    ws.send(`<strong>${username}:  </strong>` + document.getElementById("text-bar").value); // ✅ Send message via WebSocket
+                    document.getElementById("text-bar").value = "";
                 }
-                // document.getElementByClassName("custom-body").innnerText += "<br>";
             });
+
+            document.getElementById("admin-page-header").innerHTML = team_name;
+            document.getElementById("team-info").innerHTML = `<br>${team_name}<br><hr><br>`;
+
+            // document.getElementById("text-bar").addEventListener("keypress", function(event) {
+            //     if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
+            //         generateDiv();
+            //         scrollToBottom();
+            //     }
+            //     // document.getElementByClassName("custom-body").innnerText += "<br>";
+            // });
             
             function generateDiv() {
                 var newDiv = document.createElement("div");
@@ -94,7 +125,7 @@
                 .then(response => response.json())
                 .then(data => console.log("✅ Message Sent:", data))
                 .catch(error => console.error("❌ Error:", error));
-                newDiv.innerHTML = `<strong>${username}:  </strong>` + document.getElementById("text-bar").value;
+                newDiv.innerHTML = document.getElementById("text-bar").value;
                 document.getElementById("text-bar").value = "";
                 newDiv.style.backgroundColor = "rgb(44, 121, 202)";
                 newDiv.style.color = "white";

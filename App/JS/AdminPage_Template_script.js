@@ -1,3 +1,7 @@
+// setTimeout(() => {
+//     location.reload();
+// }, 5000); // ✅ Reloads every 5 seconds
+
 document.addEventListener('DOMContentLoaded', function() {
     const parentDiv = document.getElementById('friends-icon');
     const childDiv = document.getElementById('menu');
@@ -158,6 +162,7 @@ function generateDiv() {
         margin-bottom: 10px;
         border-radius: 20px;
         height: 50px;
+        cursor: pointer;
         `);
 
         newerDiv.addEventListener("mouseover", function(){
@@ -170,6 +175,7 @@ function generateDiv() {
                 padding-left: 50px;
                 border-radius: 20px;
                 height: 50px;
+                cursor: pointer;
                 transition: background-color 0.2s ease-in-out;
                 `);
         });
@@ -183,6 +189,7 @@ function generateDiv() {
                 padding-left: 50px;
                 border-radius: 20px;
                 height: 50px;
+                cursor: pointer;
                 transition: background-color 0.2s ease-in-out;
                 `);
         });
