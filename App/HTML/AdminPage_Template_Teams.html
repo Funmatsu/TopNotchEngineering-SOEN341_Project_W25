@@ -91,14 +91,15 @@
 
             ws.onmessage = async (event) => {
                 console.log("📥 Incoming message:", event.data);
-                document.getElementById("text-bar").value += await event.data.text();
+                document.getElementById("text-bar").value = await event.data.text();
                 generateDiv();
+                document.getElementById("text-bar").value = "";
                 scrollToBottom();
             };
 
             document.getElementById("text-bar").addEventListener("keypress", function(event) {
                 if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
-                    ws.send(`<strong>${username}:  </strong>` + document.getElementById("text-bar").value); // ✅ Send message via WebSocket
+                    ws.send(`<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `<small>(${new Date().toLocaleString()})</small>`); // ✅ Send message via WebSocket
                     document.getElementById("text-bar").value = "";
                 }
             });
@@ -117,16 +118,18 @@
             function generateDiv() {
                 var newDiv = document.createElement("div");
                 const message = document.getElementById("text-bar").value;
-                fetch(`http://localhost:3000/users/${username}/messages`, {
+                console.log("📤 Sending message:", { username, team_name, message }); // ✅ Debugging step
+                fetch(`http://localhost:3000/messages_teams`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, message }) // ✅ Include user_id
+                    body: JSON.stringify({ username, team_name, message })
                 })
                 .then(response => response.json())
                 .then(data => console.log("✅ Message Sent:", data))
                 .catch(error => console.error("❌ Error:", error));
+
                 newDiv.innerHTML = document.getElementById("text-bar").value;
-                document.getElementById("text-bar").value = "";
+
                 newDiv.style.backgroundColor = "rgb(44, 121, 202)";
                 newDiv.style.color = "white";
                 newDiv.style.width = "fit-content";
@@ -171,7 +174,7 @@
             }
 
             function fetchMessages() {
-                fetch("http://localhost:3000/messages")
+                fetch(`http://localhost:3000/messages_teams?teamname=${encodeURIComponent(team_name)}`)
                 .then(response => response.text()) // ✅ Log raw response before parsing
                 .then(text => {
                     console.log("📥 Raw server response:", text);
@@ -180,14 +183,22 @@
                 .then(data => {
                     console.log("✅ Data Type:", typeof data); // ✅ Debugging
                     console.log("✅ Parsed JSON:", data);
+
+                    if (data.messages.length === 0) {
+                        console.warn("⚠ No messages found!");
+                        return;
+                    }   
+                    document.getElementById("text-bar").value = "";
+                    // document.getElementById("div-custom-body").innerHTML = "";
                     data.messages.forEach(msg => {
-                        document.getElementById("text-bar").value = `<strong>${msg.username}: </strong>` + msg.message;
+                        document.getElementById("text-bar").value = msg.message;
                         sendMsg();
                         scrollToBottom();
+                        document.getElementById("text-bar").value = "";
                     });
                 })
                 .catch(error => console.error("❌ Error fetching messages:", error));
-
+                
             }
 
             document.addEventListener("DOMContentLoaded", fetchMessages);

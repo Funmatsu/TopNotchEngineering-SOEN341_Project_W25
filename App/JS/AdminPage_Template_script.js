@@ -229,7 +229,8 @@ if (username) {
 }
 
 function fetchTeams() {
-    fetch("http://localhost:3000/teams")
+    let teamname = document.getElementById("team-name").value;
+    fetch(`http://localhost:3000/teams`)
     .then(response => response.json())
     .then(data => {
         console.log("✅ Fetched teams:", data); // ✅ Debugging

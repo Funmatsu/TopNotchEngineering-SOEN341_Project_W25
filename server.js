@@ -87,18 +87,38 @@ app.get('/users/:username/messages', (req, res) => {
     });
 });
 
-// ✅ Send a Message (Now Includes Username)
-app.post('/users/:username/messages', (req, res) => {
+// // ✅ Send a Message (Now Includes Username)
+// app.post('/users/:username/messages', (req, res) => {
+//     console.log("📥 Received message request:", req.body); // ✅ Debugging
+
+//     const { username, message } = req.body;
+//     if (!username || !message) {
+//         console.log("❌ Missing fields!");
+//         return res.status(400).json({ success: false, message: "Username and message required!" });
+//     }
+
+//     const sql = "INSERT INTO messages (username, message) VALUES (?, ?)";
+//     connection.query(sql, [username, message], (err, result) => {
+//         if (err) {
+//             console.error("❌ Error inserting message:", err);
+//             return res.status(500).json({ success: false, message: "Internal Server Error" });
+//         }
+//         console.log("✅ Message stored in DB:", result);
+//         res.json({ success: true, message: "Message sent!", messageId: result.insertId });
+//     });
+// });
+
+app.post('/messages_teams', (req, res) => {
     console.log("📥 Received message request:", req.body); // ✅ Debugging
 
-    const { username, message } = req.body;
-    if (!username || !message) {
+    const { username, team_name, message } = req.body;
+    if (!username || !team_name || !message) {
         console.log("❌ Missing fields!");
         return res.status(400).json({ success: false, message: "Username and message required!" });
     }
 
-    const sql = "INSERT INTO messages (username, message) VALUES (?, ?)";
-    connection.query(sql, [username, message], (err, result) => {
+    const sql = "INSERT INTO messages_teams (username, teamname, message) VALUES (?, ?, ?)";
+    connection.query(sql, [username, team_name, message], (err, result) => {
         if (err) {
             console.error("❌ Error inserting message:", err);
             return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -108,18 +128,28 @@ app.post('/users/:username/messages', (req, res) => {
     });
 });
 
+// // ✅ Fetch All Messages (Now Includes Usernames)
+// app.get("/messages", (req, res) => {
+//     const sql = "SELECT username, message, timestamp FROM messages ORDER BY timestamp ASC";
 
+//     connection.query(sql, (err, results) => {
+//         if (err) {
+//             console.error("❌ Database Error:", err);
+//             return res.status(500).json({ success: false, message: "Internal Server Error" }); // ✅ Respond with valid JSON
+//         }
+//         res.json({ success: true, messages: results }); // ✅ Ensure response is valid JSON
+//     });
+// });
 
-// ✅ Fetch All Messages (Now Includes Usernames)
-app.get("/messages", (req, res) => {
-    const sql = "SELECT username, message, timestamp FROM messages ORDER BY timestamp ASC";
+app.get("/messages_teams", (req, res) => {
+    const sql = "SELECT username, teamname, message, created_at FROM messages_teams ORDER BY created_at ASC";
 
     connection.query(sql, (err, results) => {
         if (err) {
-            console.error("❌ Database Error:", err);
-            return res.status(500).json({ success: false, message: "Internal Server Error" }); // ✅ Respond with valid JSON
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
         }
-        res.json({ success: true, messages: results }); // ✅ Ensure response is valid JSON
+        console.log("✅ Retrieved Messages:", results); // ✅ Debugging step
+        res.json({ success: true, messages: results });
     });
 });
 
