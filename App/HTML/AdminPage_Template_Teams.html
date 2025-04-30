@@ -94,6 +94,7 @@
                 const receivedMessage = await event.data;
                 const parsedMessage = JSON.parse(receivedMessage); // ✅ Parse message as JSON
                 document.getElementById("text-bar").value = parsedMessage.message;
+                
                 sendMsg();
                 document.getElementById("text-bar").value = "";
                 scrollToBottom();
@@ -222,7 +223,7 @@
             }
 
             function fetchMessages() {
-                fetch(`http://localhost:3000/messages_teams?teamname=${encodeURIComponent(teamname)}`)
+                fetch(`http://localhost:3000/messages_teams/${teamname}`)
                 .then(response => response.text()) // ✅ Log raw response before parsing
                 .then(text => {
                     console.log("📥 Raw server response:", text);

@@ -116,7 +116,7 @@ app.post("/messages_teams", (req, res) => {
     }
 
     // ✅ Ensure message does not include username formatting
-    const cleanMessage = message.replace(/<[^>]*>/g, "").trim(); // Remove any HTML formatting
+    const cleanMessage = message.trim(); // Remove any HTML formatting
 
     const sql = "INSERT INTO messages_teams (username, teamname, message) VALUES (?, ?, ?)";
     connection.query(sql, [username, teamname, cleanMessage], (err, result) => {
@@ -155,6 +155,18 @@ app.get("/messages_teams", (req, res) => {
     });
 });
 
+app.get("/messages_teams/:teamname", (req, res) => {
+    const { teamname } = req.params;
+    const sql = "SELECT username, teamname, message, created_at FROM messages_teams WHERE teamname = ? ORDER BY created_at ASC";
+
+    connection.query(sql, [teamname], (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        console.log(`✅ Retrieved Messages for Team "${teamname}":`, results); // ✅ Debugging step
+        res.json({ success: true, messages: results });
+    });
+});
 
 // ✅ Delete All Messages & Reset IDs
 app.delete('/messages', (req, res) => {
