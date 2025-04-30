@@ -32,7 +32,7 @@ app.post("/login", (req, res) => {
 
 app.post("/teams", (req, res) => {
     const { name, description } = req.body;
-
+    console.log(req.body.name);
     if (!name) {
         console.log("❌ Missing team name!");
         return res.status(400).json({ success: false, message: "Team name is required!" });
@@ -72,6 +72,27 @@ app.get('/users', (req, res) => {
         res.json(results);
     });
 });
+
+app.post("/users", (req, res) => {
+    const { username, email, password} = req.body; // ✅ Accept user data
+
+    if (!username || !email || !password) {
+        console.log("❌ Missing required fields!");
+        return res.status(400).json({ success: false, message: "Username, email, and password required!" });
+    }
+
+    const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+    connection.query(sql, [username, email, password|| null], (err, result) => {
+        if (err) {
+            console.error("❌ Error inserting user:", err);
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+
+        console.log("✅ User Added to Database:", result);
+        res.json({ success: true, userId: result.insertId });
+    });
+});
+
 
 // ✅ Fetch Messages for a Specific User
 app.get('/users/:username/messages', (req, res) => {

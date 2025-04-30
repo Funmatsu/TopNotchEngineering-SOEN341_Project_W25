@@ -96,34 +96,16 @@
                 document.getElementById("text-bar").value = parsedMessage.message;
                 
                 sendMsg();
+                window.location.reload();
+
                 document.getElementById("text-bar").value = "";
                 scrollToBottom();
-                try {
-                    const receivedMessage = await event.data;
-                    console.log("message: ", receivedMessage);
-                    const parsedMessage = JSON.parse(receivedMessage); // ✅ Parse message as JSON
-                    const currentUsername = username; // 🔥 Replace with the actual logged-in username
-
-                    // ✅ Ignore messages sent by the current user
-                    if (parsedMessage.username === currentUsername) {
-                        console.log("⚠ Ignoring self-sent message");
-                        return;
-                    }
-
-                    // ✅ Process message only if it's from another user
-                    document.getElementById("text-bar").value = parsedMessage.message;
-                    // generateDiv();
-                    document.getElementById("text-bar").value = "";
-                    scrollToBottom();
-
-                } catch (error) {
-                    console.error("❌ Error processing WebSocket message:", error);
-                }
+                
             };
 
 
             document.getElementById("text-bar").addEventListener("keypress", function(event) {  
-                let msgString = `<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `<small>(${new Date().toLocaleString()})</small>`;
+                let msgString = `<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `     <small>(${new Date().toLocaleString()})</small>`;
                 if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
                     ws.send(JSON.stringify({
                         username: username,  // ✅ Replace with actual logged-in user
@@ -136,7 +118,7 @@
             });
 
             document.getElementById("admin-page-header").innerHTML = teamname;
-            document.getElementById("team-info").innerHTML = `<br>${teamname}<br><hr><br>`;
+            document.getElementById("team-info").innerHTML = `<br>${username}<br><hr><br>`;
 
             // document.getElementById("text-bar").addEventListener("keypress", function(event) {
             //     if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
@@ -178,9 +160,8 @@
             function sendMsg() {
                 var newDiv = document.createElement("div");
                 const message = document.getElementById("text-bar").value;
-                
+
                 newDiv.innerHTML = message;
-                document.getElementById("text-bar").value = "";
                 newDiv.style.backgroundColor = "rgb(44, 121, 202)";
                 newDiv.style.color = "white";
                 newDiv.style.width = "fit-content";
@@ -189,6 +170,7 @@
                 newDiv.style.borderRadius = "10px";
                 newDiv.style.padding = "15px";
                 newDiv.style.margin = "10px";
+                
                 newDiv.className = "generated";
                 document.querySelector("#div-custom-body").appendChild(newDiv);
             }
@@ -241,7 +223,33 @@
                     // document.getElementById("div-custom-body").innerHTML = "";
                     data.messages.forEach(msg => {
                         document.getElementById("text-bar").value = msg.message;
-                        sendMsg();
+                        var newDiv = document.createElement("div");
+                        var msgcontainer = document.createElement("div");
+                        msgcontainer.id = "msgContainer";
+                        msgcontainer.style.width = "75vw";
+                        msgcontainer.style.height = "10vh";
+                        msgcontainer.style.backgroundColor = "white";
+                        
+                        const message = document.getElementById("text-bar").value;
+
+                        newDiv.innerHTML = message;
+                        
+                        newDiv.style.color = "white";
+                        newDiv.style.width = "fit-content"
+                        newDiv.style.position = "relative";
+                        newDiv.style.borderRadius = "10px";
+                        newDiv.style.padding = "15px";
+                        newDiv.style.margin = "10px";
+                        if(username === msg.username){
+                            newDiv.style.float = "left";
+                            newDiv.style.backgroundColor = "rgb(44, 121, 202)";
+                        }
+                        else{
+                            newDiv.style.float = "right";
+                            newDiv.style.backgroundColor = "rgb(202, 202, 202)";
+                        }
+                        msgcontainer.appendChild(newDiv);
+                        document.querySelector("#div-custom-body").appendChild(msgcontainer);
                         scrollToBottom();
                         document.getElementById("text-bar").value = "";
                     });

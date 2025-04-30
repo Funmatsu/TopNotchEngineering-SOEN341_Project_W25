@@ -44,8 +44,8 @@ document.querySelector("#add-teams").onclick = function() {
 
     document.getElementById("create-team-button").addEventListener("click", async () => {
         generateDiv();
-        const team_name = document.getElementById("team-name-input").value;
-        const team_desc = document.getElementById("team-desc-input").value;
+        const team_name = document.getElementById("team-name").value;
+        const team_desc = document.getElementById("team-desc").value;
         
         console.log("📤 Sending Data:", { team_name, team_desc }); // ✅ Debugging
         
@@ -72,6 +72,186 @@ function generateDiv() {
     let newerDiv = document.createElement("div");
     let newerDivText = document.createElement("p");
     let roundDiv = document.createElement('div');
+    if (!document.getElementById("team-name").value) {
+        alert("❌ Team name is required!");
+        return;
+    }
+    let teamName = document.getElementById("team-name").value;
+    let teamDescription = document.getElementById("team-desc").value;
+    fetch("http://localhost:3000/teams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: teamName, description: teamDescription })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("✅ Team created:", data);
+            alert("🎉 Team created successfully!");
+        } else {
+            alert("❌ Error creating team: " + data.message);
+        }
+        console.log("genDiv called");
+    })
+    .catch(error => console.error("❌ Error:", error));
+
+    // Add content to the new div
+    newDiv.innerHTML = document.getElementById("team-name").value[0];
+    newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong> | ${document.getElementById("team-desc").value}`;
+    roundDiv.innerHTML = document.getElementById("team-name").value[0];
+
+    var r = Math.floor(Math.random() * 256);
+    var g = Math.floor(Math.random() * 256);
+    var b = Math.floor(Math.random() * 256);
+
+    var rgbColor = "rgb(" + r + "," + g + "," + b + ")";
+    
+    newDiv.setAttribute("style", `position: relative;
+        text-align: center;
+        top: 5px;
+        left: 12px;
+        width: 25px;
+        height: 25px;
+        background-color: white;
+        padding: 15px;
+        padding-top: 12px;
+        padding-bottom: 17px;
+        background-color: ${rgbColor};
+        border-radius: 50px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        overflow: hidden;
+        font-size: 30px;
+        transition: background-color 0.2s ease;
+        transition: padding 0.2s ease, left 0.2s ease;`);
+    newDiv.addEventListener("mouseover", function() {
+        newDiv.setAttribute("style", 
+        `text-align: center;
+        position: relative;
+            top: 5px;
+            left: 6px;
+            width: 25px;
+            height: 25px;
+            background-color: white;
+            padding: 15px;
+            padding-top: 12px;
+            padding-bottom: 17px;
+            
+            border-radius: 50px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            overflow: hidden;
+            font-size: 30px;
+        background-color: ${rgbColor};
+        padding: 22px;
+        padding-top: 18px;
+        padding-bottom: 24px;
+        transition: padding 0.2s ease, left 0.2s ease;
+        `);
+    });
+    newDiv.addEventListener("mouseout", function() {
+        newDiv.setAttribute("style", `position: relative;
+            text-align: center;
+            top: 5px;
+            left: 12px;
+            width: 25px;
+            height: 25px;
+            background-color: white;
+            padding: 15px;
+            padding-top: 12px;
+            padding-bottom: 17px;
+            background-color: ${rgbColor};
+            border-radius: 50px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            overflow: hidden;
+            font-size: 30px;
+            transition: padding 0.2s ease, left 0.2s ease;`);
+    });
+    newDiv.className = "generated";
+
+    // Append the new div to the container
+    // var container = document.getElementById("container");
+    document.querySelector("#teams-container").appendChild(newDiv);
+
+    newerDiv.setAttribute("style", 
+        `margin-top: 10px;
+        padding: 15px;
+        padding-left: 50px;
+        margin-bottom: 10px;
+        border-radius: 20px;
+        height: 50px;
+        cursor: pointer;
+        `);
+
+        newerDiv.addEventListener("mouseover", function(){
+            newerDiv.setAttribute("style", 
+                `margin-top: 10px;
+                color: black;
+                background-color: rgb(44, 121, 202);
+                margin-bottom: 10px;
+                padding: 15px;
+                padding-left: 50px;
+                border-radius: 20px;
+                height: 50px;
+                cursor: pointer;
+                transition: background-color 0.2s ease-in-out;
+                `);
+        });
+
+        newerDiv.addEventListener("mouseout", function(){
+            newerDiv.setAttribute("style", 
+                `margin-top: 10px;
+                color: black;
+                margin-bottom: 10px;
+                padding: 15px;
+                padding-left: 50px;
+                border-radius: 20px;
+                height: 50px;
+                cursor: pointer;
+                transition: background-color 0.2s ease-in-out;
+                `);
+        });
+        
+        roundDiv.setAttribute("style", `
+            width: 30px;
+            text-align: center;
+            border-radius: 50px;
+            background-color: ${rgbColor};
+            padding-top: 3px;
+            padding-bottom: 3px;
+            left: -50px;
+            top: -45px;
+            position: relative;
+            margin: 10px;
+            `);
+    
+    newerDiv.id = "generatedNew";
+    let teamname = document.getElementById("team-name").value;
+    newDiv.onclick = function() {
+        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+    }
+    newerDiv.onclick = newDiv.onclick;
+    newerDiv.appendChild(newerDivText);
+    document.getElementById("custom-team-container").appendChild(newerDiv);
+    newerDiv.appendChild(roundDiv);    
+    back.onclick();
+    
+}
+
+function renderTeam() {
+    // Create a new div element
+    let newDiv = document.createElement("div");
+    let newerDiv = document.createElement("div");
+    let newerDivText = document.createElement("p");
+    let roundDiv = document.createElement('div');
+    if (!document.getElementById("team-name").value) {
+        alert("❌ Team name is required!");
+        return;
+    }
 
     // Add content to the new div
     newDiv.innerHTML = document.getElementById("team-name").value[0];
@@ -240,13 +420,10 @@ function fetchTeams() {
             return;
         }
 
-        const teamsContainer = document.querySelector("#teams-container"); // ✅ Ensure your HTML has an element with this ID
-        teamsContainer.innerHTML = ""; // ✅ Clear existing teams before updating
-
         data.teams.forEach(team => {
             document.getElementById("team-name").value = team.name;
             document.getElementById("team-desc").value = team.description;
-            generateDiv();
+            renderTeam();
         });
     })
     .catch(error => console.error("❌ Error fetching teams:", error));
