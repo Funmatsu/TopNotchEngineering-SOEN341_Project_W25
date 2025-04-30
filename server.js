@@ -108,25 +108,38 @@ app.get('/users/:username/messages', (req, res) => {
 //     });
 // });
 
-app.post('/messages_teams', (req, res) => {
-    console.log("📥 Received message request:", req.body); // ✅ Debugging
+app.post("/messages_teams", (req, res) => {
+    console.log("📥 Checking for duplicate message storage...");
 
-    const { username, team_name, message } = req.body;
-    if (!username || !team_name || !message) {
-        console.log("❌ Missing fields!");
-        return res.status(400).json({ success: false, message: "Username and message required!" });
-    }
+    const { username, teamname, message } = req.body;
 
-    const sql = "INSERT INTO messages_teams (username, teamname, message) VALUES (?, ?, ?)";
-    connection.query(sql, [username, team_name, message], (err, result) => {
+    // ✅ Prevent duplicate entries in the database
+    const sqlCheck = "SELECT COUNT(*) AS count FROM messages_teams WHERE username = ? AND teamname = ? AND message = ?";
+    connection.query(sqlCheck, [username, teamname, message], (err, result) => {
         if (err) {
-            console.error("❌ Error inserting message:", err);
+            console.error("❌ Error checking duplicates:", err);
             return res.status(500).json({ success: false, message: "Internal Server Error" });
         }
-        console.log("✅ Message stored in DB:", result);
-        res.json({ success: true, message: "Message sent!", messageId: result.insertId });
+
+        if (result[0].count > 0) {
+            console.warn("⚠ Duplicate message detected, skipping insert.");
+            return res.json({ success: false, message: "Duplicate message detected!" });
+        }
+
+        // Proceed to insert only if it's not a duplicate
+        const sqlInsert = "INSERT INTO messages_teams (username, teamname, message) VALUES (?, ?, ?)";
+        connection.query(sqlInsert, [username, teamname, message], (err, insertResult) => {
+            if (err) {
+                console.error("❌ Error inserting message:", err);
+                return res.status(500).json({ success: false, message: "Internal Server Error" });
+            }
+            console.log("✅ Message stored in DB:", insertResult.insertId);
+            res.json({ success: true, message: "Message sent!", messageId: insertResult.insertId });
+        });
     });
 });
+
+
 
 // // ✅ Fetch All Messages (Now Includes Usernames)
 // app.get("/messages", (req, res) => {
@@ -180,12 +193,26 @@ wss.on("connection", (ws) => {
 
     ws.on("message", (message) => {
         console.log("📩 Received:", message);
+
+        // ✅ Ensure message is not re-sent by the client
+        try {
+            const parsedMessage = JSON.parse(message);
+            if (parsedMessage.sender === localStorage.getItem("currentUser")) {
+                console.log("⚠ Ignoring self-sent message");
+                return;
+            }
+        } catch (error) {
+            console.error("❌ Error parsing message:", error);
+        }
+
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(message); // ✅ Send message to all connected clients
+                console.log("📤 Broadcasting:", message);
+                client.send(message);
             }
         });
     });
 
     ws.on("close", () => console.log("❌ Client disconnected"));
 });
+

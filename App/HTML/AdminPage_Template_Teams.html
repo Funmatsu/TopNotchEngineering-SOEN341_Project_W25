@@ -85,7 +85,7 @@
             const adminPageHeader = document.getElementById("admin-page-header");
             const params = new URLSearchParams(window.location.search);
             let username = params.get("username");
-            let team_name = params.get("teamname");
+            let teamname = params.get("teamname");
 
             const ws = new WebSocket("ws://localhost:8080"); // ✅ Connect to WebSocket server
 
@@ -97,19 +97,19 @@
                 scrollToBottom();
             };
 
-            document.getElementById("text-bar").addEventListener("keypress", function(event) {
+            document.getElementById("text-bar").addEventListener("keypress", function(event) {  
                 if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
                     ws.send(`<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `<small>(${new Date().toLocaleString()})</small>`); // ✅ Send message via WebSocket
                     document.getElementById("text-bar").value = "";
                 }
             });
 
-            document.getElementById("admin-page-header").innerHTML = team_name;
-            document.getElementById("team-info").innerHTML = `<br>${team_name}<br><hr><br>`;
+            document.getElementById("admin-page-header").innerHTML = teamname;
+            document.getElementById("team-info").innerHTML = `<br>${teamname}<br><hr><br>`;
 
             // document.getElementById("text-bar").addEventListener("keypress", function(event) {
             //     if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
-            //         generateDiv();
+            //         generateDiv();S
             //         scrollToBottom();
             //     }
             //     // document.getElementByClassName("custom-body").innnerText += "<br>";
@@ -118,15 +118,15 @@
             function generateDiv() {
                 var newDiv = document.createElement("div");
                 const message = document.getElementById("text-bar").value;
-                console.log("📤 Sending message:", { username, team_name, message }); // ✅ Debugging step
-                fetch(`http://localhost:3000/messages_teams`, {
+                console.log("🚀 Sending POST request to backend at:", new Date().toISOString());
+                fetch("http://localhost:3000/messages_teams", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, team_name, message })
+                    body: JSON.stringify({ username, teamname, message })
                 })
-                .then(response => response.json())
-                .then(data => console.log("✅ Message Sent:", data))
-                .catch(error => console.error("❌ Error:", error));
+                    .then(response => response.json())
+                    .then(data => console.log("✅ Message Sent:", data))
+                    .catch(error => console.error("❌ Error:", error));
 
                 newDiv.innerHTML = document.getElementById("text-bar").value;
 
@@ -140,13 +140,14 @@
                 newDiv.style.margin = "10px";
                 newDiv.className = "generated";
                 document.querySelector("#div-custom-body").appendChild(newDiv);
+                document.getElementById("text-bar").value = "";
             }
 
             function sendMsg() {
                 var newDiv = document.createElement("div");
                 const message = document.getElementById("text-bar").value;
                 
-                newDiv.innerHTML = document.getElementById("text-bar").value;
+                newDiv.innerHTML = message;
                 document.getElementById("text-bar").value = "";
                 newDiv.style.backgroundColor = "rgb(44, 121, 202)";
                 newDiv.style.color = "white";
@@ -174,7 +175,7 @@
             }
 
             function fetchMessages() {
-                fetch(`http://localhost:3000/messages_teams?teamname=${encodeURIComponent(team_name)}`)
+                fetch(`http://localhost:3000/messages_teams?teamname=${encodeURIComponent(teamname)}`)
                 .then(response => response.text()) // ✅ Log raw response before parsing
                 .then(text => {
                     console.log("📥 Raw server response:", text);
