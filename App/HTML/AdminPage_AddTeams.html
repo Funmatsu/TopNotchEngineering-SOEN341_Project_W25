@@ -25,8 +25,9 @@
                     <div id="TeamNameForm" >
                         <label for="dropdown" id="NameInput-placeholder">User Name:</label>
                         <input class="NameInput" placeholder="username eg.. Funmatsu1234" id="username"><br><br>
-                        <label for="dropdown" id="RoleInput-placeholder">Password:</label>
-                            <input class="NameInput" placeholder="Make it strong" id="password">
+                        <label for="dropdown" id="PassInput-placeholder">Password:</label>
+                            <input class="NameInput" placeholder="Make it strong" id="password_login">
+                            <p>New to ChatHaven? Sign up <a href="AdminSignUp.html">here</a></p> 
                         <div class="general-button" id="loginbtn" type="submit">
                             Login
                         </div>
@@ -41,8 +42,9 @@
         <script>
             document.getElementById("loginbtn").addEventListener("click", async (e) => {
             e.preventDefault();
+
             const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
+            const password = document.getElementById("password_login").value;
             const loginBtn = document.getElementById("loginbtn");
 
             loginBtn.textContent = "Logging in..."; // ✅ Show loading state

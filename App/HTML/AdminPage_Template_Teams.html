@@ -105,7 +105,7 @@
 
 
             document.getElementById("text-bar").addEventListener("keypress", function(event) {  
-                let msgString = `<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `     <small>(${new Date().toLocaleString()})</small>`;
+                let msgString = `<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `     <small>${new Date().toLocaleString()}</small>`;
                 if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
                     ws.send(JSON.stringify({
                         username: username,  // ✅ Replace with actual logged-in user
@@ -118,7 +118,7 @@
             });
 
             document.getElementById("admin-page-header").innerHTML = teamname;
-            document.getElementById("team-info").innerHTML = `<br>${username}<br><hr><br>`;
+            document.getElementById("team-info").innerHTML = `You: <p style='color: lightgreen;'>${username}<br><hr></p>`;
 
             // document.getElementById("text-bar").addEventListener("keypress", function(event) {
             //     if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
@@ -229,6 +229,8 @@
                         msgcontainer.style.width = "75vw";
                         msgcontainer.style.height = "10vh";
                         msgcontainer.style.backgroundColor = "white";
+                        msgcontainer.style.display = "flex";
+                        msgcontainer.style.flexDirection = "column";
                         
                         const message = document.getElementById("text-bar").value;
 
@@ -241,12 +243,13 @@
                         newDiv.style.padding = "15px";
                         newDiv.style.margin = "10px";
                         if(username === msg.username){
-                            newDiv.style.float = "left";
+                            newDiv.style.alignSelf = "flex-start";
                             newDiv.style.backgroundColor = "rgb(44, 121, 202)";
                         }
                         else{
-                            newDiv.style.float = "right";
-                            newDiv.style.backgroundColor = "rgb(202, 202, 202)";
+                            newDiv.style.alignSelf = "flex-end";
+                            newDiv.style.color = "black";
+                            newDiv.style.backgroundColor = "rgb(212, 212, 212)";
                         }
                         msgcontainer.appendChild(newDiv);
                         document.querySelector("#div-custom-body").appendChild(msgcontainer);

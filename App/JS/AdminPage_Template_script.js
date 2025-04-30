@@ -24,9 +24,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const profile_icon_popup = document.querySelector(".profile-icon");
 const popup = document.querySelector("#pop-up");
+const profileInfo = document.querySelector(".profile-name");
+const insidePopUp = document.getElementById("inside-pop-up");
+profile_icon_popup.addEventListener("click", () => {
+    profileInfo.style.display = "block";
+    profileInfo.style.position = "absolute";
+    profileInfo.style.top = profileInfo.style.top;
+});
 profile_icon_popup.onclick = function(){
     popup.style.display = "block";
-    document.querySelector("#inside-pop-up").style.display = "block";
+    insidePopUp.style.display = "block";
+    insidePopUp.innnerText = `${username}`;
     document.querySelector("#team-addition-form").style.display = "none";
 }
 const back = document.querySelector("#back");
@@ -52,7 +60,7 @@ document.querySelector("#add-teams").onclick = function() {
         const response = await fetch("http://localhost:3000/teams", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ team_name, team_desc }) // ✅ Correct property names!
+            body: JSON.stringify({ name: team_name, description: team_desc }) // ✅ Correct property names!
         });
     
         const data = await response.json();
@@ -72,6 +80,7 @@ function generateDiv() {
     let newerDiv = document.createElement("div");
     let newerDivText = document.createElement("p");
     let roundDiv = document.createElement('div');
+    let deleteTeamDiv = document.createElement('div');
     if (!document.getElementById("team-name").value) {
         alert("❌ Team name is required!");
         return;
@@ -185,6 +194,7 @@ function generateDiv() {
         border-radius: 20px;
         height: 50px;
         cursor: pointer;
+        display: flex;
         `);
 
         newerDiv.addEventListener("mouseover", function(){
@@ -199,6 +209,7 @@ function generateDiv() {
                 height: 50px;
                 cursor: pointer;
                 transition: background-color 0.2s ease-in-out;
+                display: flex;
                 `);
         });
 
@@ -213,6 +224,7 @@ function generateDiv() {
                 height: 50px;
                 cursor: pointer;
                 transition: background-color 0.2s ease-in-out;
+                display: flex;
                 `);
         });
         
@@ -227,19 +239,49 @@ function generateDiv() {
             top: -45px;
             position: relative;
             margin: 10px;
+            display: flex;
             `);
     
-    newerDiv.id = "generatedNew";
-    let teamname = document.getElementById("team-name").value;
-    newDiv.onclick = function() {
-        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
-    }
-    newerDiv.onclick = newDiv.onclick;
-    newerDiv.appendChild(newerDivText);
-    document.getElementById("custom-team-container").appendChild(newerDiv);
-    newerDiv.appendChild(roundDiv);    
-    back.onclick();
-    
+            newerDiv.id = "generatedNew";
+            let teamname = document.getElementById("team-name").value;
+            newDiv.onclick = function() {
+                window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+            }
+        
+            newerDiv.onclick = function() {
+                window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+            }
+        
+            newerDiv.addEventListener("mouseover", () =>{
+                deleteTeamDiv.style.display = "block";
+            });
+            newerDiv.addEventListener("mouseout", () =>{
+                deleteTeamDiv.style.display = "none";
+            });
+            newerDivText.style.float = "left";
+            deleteTeamDiv.addEventListener("click", (event) => {
+                event.preventDefault();
+                fetch(`http://localhost:3000/teams/${teamname}`, {
+                    method: "DELETE",
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("✅ Team deleted:", data);
+                        alert(`🎉 Team '${teamname}' deleted successfully!`);
+                    } else {
+                        alert("❌ Error deleting team: " + data.message);
+                    }
+                })
+                .catch(error => console.error("❌ Error:", error));
+            });
+            newerDiv.appendChild(newerDivText);
+            newerDiv.appendChild(deleteTeamDiv);
+            console.log("delete team added!");
+            newerDiv.appendChild(roundDiv);   
+            document.getElementById("custom-team-container").appendChild(newerDiv);   
+            window.location.reload();
+            back.onclick();
 }
 
 function renderTeam() {
@@ -257,6 +299,14 @@ function renderTeam() {
     newDiv.innerHTML = document.getElementById("team-name").value[0];
     newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong> | ${document.getElementById("team-desc").value}`;
     roundDiv.innerHTML = document.getElementById("team-name").value[0];
+
+    let deleteTeamDiv = document.createElement('div');
+    deleteTeamDiv.innerText = "❌";
+    deleteTeamDiv.style.alignSelf = "flex-end";
+    deleteTeamDiv.style.float = "right";
+    deleteTeamDiv.style.height = "30px"
+    deleteTeamDiv.style.width = "30px";
+    deleteTeamDiv.style.display = "none";
 
     var r = Math.floor(Math.random() * 256);
     var g = Math.floor(Math.random() * 256);
@@ -385,6 +435,7 @@ function renderTeam() {
             top: -45px;
             position: relative;
             margin: 10px;
+            align-self: flex-start;
             `);
     
     newerDiv.id = "generatedNew";
@@ -392,12 +443,41 @@ function renderTeam() {
     newDiv.onclick = function() {
         window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
     }
-    newerDiv.onclick = newDiv.onclick;
+
+    newerDiv.onclick = function() {
+        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+    }
+
+    newerDiv.addEventListener("mouseover", () =>{
+        deleteTeamDiv.style.display = "block";
+    });
+    newerDiv.addEventListener("mouseout", () =>{
+        deleteTeamDiv.style.display = "none";
+    });
+    newerDivText.style.float = "left";
+    deleteTeamDiv.addEventListener("click", (event) => {
+        event.preventDefault();
+        fetch(`http://localhost:3000/teams/${teamname}`, {
+            method: "DELETE",
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("✅ Team deleted:", data);
+                alert(`🎉 Team '${teamname}' deleted successfully!`);
+                window.location.href = `AdminPage_Template.html?username=${username}`;
+            } else {
+                alert("❌ Error deleting team: " + data.message);
+            }
+        })
+        .catch(error => console.error("❌ Error:", error));
+        window.location.reload();
+    });
     newerDiv.appendChild(newerDivText);
-    document.getElementById("custom-team-container").appendChild(newerDiv);
-    newerDiv.appendChild(roundDiv);    
+    newerDiv.appendChild(deleteTeamDiv);
+    newerDiv.appendChild(roundDiv);   
+    document.getElementById("custom-team-container").appendChild(newerDiv);   
     back.onclick();
-    
 }
 
 const adminPageHeader = document.getElementById("admin-page-header");
@@ -421,9 +501,10 @@ function fetchTeams() {
         }
 
         data.teams.forEach(team => {
-            document.getElementById("team-name").value = team.name;
+            document.getElementById("team-name").value = team.name.trim();
             document.getElementById("team-desc").value = team.description;
             renderTeam();
+            console.log(team.name + " test");
         });
     })
     .catch(error => console.error("❌ Error fetching teams:", error));
