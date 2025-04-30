@@ -91,15 +91,45 @@
 
             ws.onmessage = async (event) => {
                 console.log("📥 Incoming message:", event.data);
-                document.getElementById("text-bar").value = await event.data.text();
-                generateDiv();
+                const receivedMessage = await event.data;
+                const parsedMessage = JSON.parse(receivedMessage); // ✅ Parse message as JSON
+                document.getElementById("text-bar").value = parsedMessage.message;
+                sendMsg();
                 document.getElementById("text-bar").value = "";
                 scrollToBottom();
+                try {
+                    const receivedMessage = await event.data;
+                    console.log("message: ", receivedMessage);
+                    const parsedMessage = JSON.parse(receivedMessage); // ✅ Parse message as JSON
+                    const currentUsername = username; // 🔥 Replace with the actual logged-in username
+
+                    // ✅ Ignore messages sent by the current user
+                    if (parsedMessage.username === currentUsername) {
+                        console.log("⚠ Ignoring self-sent message");
+                        return;
+                    }
+
+                    // ✅ Process message only if it's from another user
+                    document.getElementById("text-bar").value = parsedMessage.message;
+                    // generateDiv();
+                    document.getElementById("text-bar").value = "";
+                    scrollToBottom();
+
+                } catch (error) {
+                    console.error("❌ Error processing WebSocket message:", error);
+                }
             };
 
+
             document.getElementById("text-bar").addEventListener("keypress", function(event) {  
+                let msgString = `<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `<small>(${new Date().toLocaleString()})</small>`;
                 if (event.key === "Enter" && document.getElementById("text-bar").value !== "") {
-                    ws.send(`<strong>${username}:  </strong>` + document.getElementById("text-bar").value + `<small>(${new Date().toLocaleString()})</small>`); // ✅ Send message via WebSocket
+                    ws.send(JSON.stringify({
+                        username: username,  // ✅ Replace with actual logged-in user
+                        teamname: teamname,
+                        message: msgString
+                     })); // ✅ Send message via WebSocket
+                    storeToDB(msgString);
                     document.getElementById("text-bar").value = "";
                 }
             });
@@ -122,11 +152,12 @@
                 fetch("http://localhost:3000/messages_teams", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, teamname, message })
+                    body: JSON.stringify({ 
+                        username, 
+                        teamname, 
+                        message: document.getElementById("text-bar").value // ✅ Only the message content
+                    })
                 })
-                    .then(response => response.json())
-                    .then(data => console.log("✅ Message Sent:", data))
-                    .catch(error => console.error("❌ Error:", error));
 
                 newDiv.innerHTML = document.getElementById("text-bar").value;
 
@@ -160,6 +191,22 @@
                 newDiv.className = "generated";
                 document.querySelector("#div-custom-body").appendChild(newDiv);
             }
+
+            function storeToDB(msg){
+                const message = msg;
+                console.log("🚀 Sending POST request to backend at:", new Date().toISOString());
+                fetch("http://localhost:3000/messages_teams", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        username, 
+                        teamname, 
+                        message: message // ✅ Only the message content
+                    })
+                })
+
+            }
+
             function scrollToBottom() {
                 var scrollableDiv = document.getElementById("div-custom-body");
                 scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
