@@ -18,22 +18,17 @@
             
                 <div id="menu">
                     <div id="team-info"><br>(Team Name)<br><hr><br></div>
-                    <a href="../HTML/AdminPage_Template_Teams.html" id="link">
-                        <div class="general-button" id="channel">
-                            {Channel1}
-                            <a href="../HTML/AdminPage_AddUsers.html" id="link">
-                                <img src="../images/addusermale.png" id="adduser" title="Add a user in current channel">
-                            </a>
-                            <img src="../images/settingsicon.png" id="arrow1" title="settings">
-                        </div><br>
-                    </a>
 
-                    <div class="general-button" id="channel">
+                    <!-- <div class="general-button" id="channel">
                         {Channel2}
                         <a href="#" id="link">
                             <img src="../images/addusermale.png" id="adduser" title="Add a user in current channel">
                         </a>
                         <img src="../images/settingsicon.png" id="arrow1" title="settings">
+                    </div><br> -->
+
+                    <div class="general-button">
+                        Create Channel
                     </div><br>
                     
                     <a href="#" id="link"><div class="general-button" id="back" title="manage channels as an admin">
@@ -243,11 +238,11 @@
                         newDiv.style.padding = "15px";
                         newDiv.style.margin = "10px";
                         if(username === msg.username){
-                            newDiv.style.alignSelf = "flex-start";
+                            newDiv.style.alignSelf = "flex-end";
                             newDiv.style.backgroundColor = "rgb(44, 121, 202)";
                         }
                         else{
-                            newDiv.style.alignSelf = "flex-end";
+                            newDiv.style.alignSelf = "flex-start";
                             newDiv.style.color = "black";
                             newDiv.style.backgroundColor = "rgb(212, 212, 212)";
                         }
