@@ -128,6 +128,24 @@ app.get('/users/:username/messages', (req, res) => {
     });
 });
 
+app.get('/users/:username/email', (req, res) => {
+    const username = req.params.username;
+    const sql = "SELECT email FROM users WHERE username = ?";
+    
+    connection.query(sql, [username], (err, results) => {
+        if (err) {
+            console.error("❌ Error fetching email:", err);
+            return res.status(500).send("Internal Server Error");
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: "User not found!" });
+        }
+
+        res.json({ success: true, email: results[0].email });
+    });
+});
+
 // // ✅ Send a Message (Now Includes Username)
 // app.post('/users/:username/messages', (req, res) => {
 //     console.log("📥 Received message request:", req.body); // ✅ Debugging
@@ -150,17 +168,17 @@ app.get('/users/:username/messages', (req, res) => {
 // });
 
 app.post("/messages_teams", (req, res) => {
-    const { username, teamname, message } = req.body;
+    const { username, teamname, message, channel } = req.body;
 
-    if (!username || !message || !teamname) {
+    if (!username || !message || !teamname || !channel) {
         return res.status(400).json({ success: false, message: "Username, teamname, and message required!" });
     }
 
     // ✅ Ensure message does not include username formatting
     const cleanMessage = message.trim(); // Remove any HTML formatting
 
-    const sql = "INSERT INTO messages_teams (username, teamname, message) VALUES (?, ?, ?)";
-    connection.query(sql, [username, teamname, cleanMessage], (err, result) => {
+    const sql = "INSERT INTO messages_teams (username, teamname, message, channel) VALUES (?, ?, ?, ?)";
+    connection.query(sql, [username, teamname, cleanMessage, channel], (err, result) => {
         if (err) {
             return res.status(500).json({ success: false, message: "Internal Server Error" });
         }
@@ -168,7 +186,58 @@ app.post("/messages_teams", (req, res) => {
     });
 });
 
+app.post("/channels", (req, res) => {
+    const { name, team } = req.body;
 
+    if (!name || !team) {
+        return res.status(400).json({ success: false, message: "team and/or name required!" });
+    }
+
+    const sql = "INSERT INTO channels (name, team) VALUES (?, ?)";
+
+    connection.query(sql, [name, team], (err, result) => {
+        if (err) {
+            console.error("❌ Error inserting channel:", err);
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+
+        res.json({ success: true, message: "✅ Channel created!", channelId: result.insertId });
+    });
+});
+
+app.get("/channels/:team", (req, res) => {
+    const {team} = req.params;
+    const sql = "SELECT * FROM channels WHERE team = ?";
+
+    connection.query(sql, [team], (err, result) => {
+        if (err) {
+            console.error("❌ Error fetching channels:", err);
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+
+        res.json({ success: true, channels: result });
+    });
+});
+
+app.delete("/channels/:channel", (req, res) => {
+    const { channel } = req.params;
+    
+    const sql = "DELETE FROM channels WHERE name = ?";
+    
+    connection.query(sql, [channel], (err, result) => {
+        if (err) {
+            console.error("❌ Error deleting channel:", err);
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Channel not found!" });
+        }
+
+        console.log(`✅ channel '${channel}' deleted successfully!`);
+        res.json({ success: true, message: "Channel deleted!" });
+    });
+});
 
 
 // // ✅ Fetch All Messages (Now Includes Usernames)
@@ -196,18 +265,34 @@ app.get("/messages_teams", (req, res) => {
     });
 });
 
-app.get("/messages_teams/:teamname", (req, res) => {
-    const { teamname } = req.params;
-    const sql = "SELECT username, teamname, message, created_at FROM messages_teams WHERE teamname = ? ORDER BY created_at ASC";
+// app.get("/messages_teams/:teamname", (req, res) => {
+//     const { teamname } = req.params;
+//     const sql = "SELECT username, teamname, message, created_at FROM messages_teams WHERE teamname = ? ORDER BY created_at ASC";
 
-    connection.query(sql, [teamname], (err, results) => {
+//     connection.query(sql, [teamname], (err, results) => {
+//         if (err) {
+//             return res.status(500).json({ success: false, message: "Internal Server Error" });
+//         }
+//         console.log(`✅ Retrieved Messages for Team "${teamname}":`, results); // ✅ Debugging step
+//         res.json({ success: true, messages: results });
+//     });
+// });
+
+app.get("/messages_teams/:teamname/:channel", (req, res) => {
+    const { teamname, channel } = req.params;
+
+    const sql = "SELECT username, teamname, channel, message, created_at FROM messages_teams WHERE teamname = ? AND channel = ? ORDER BY created_at ASC";
+
+    connection.query(sql, [teamname, channel], (err, results) => {
         if (err) {
+            console.error("❌ Error retrieving messages:", err);
             return res.status(500).json({ success: false, message: "Internal Server Error" });
         }
-        console.log(`✅ Retrieved Messages for Team "${teamname}":`, results); // ✅ Debugging step
+        console.log(`✅ Retrieved Messages for Team "${teamname}", Channel "${channel}":`, results);
         res.json({ success: true, messages: results });
     });
 });
+
 
 // ✅ Delete All Messages & Reset IDs
 app.delete('/messages', (req, res) => {

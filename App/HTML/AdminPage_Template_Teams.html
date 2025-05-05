@@ -27,13 +27,13 @@
                         <img src="../images/settingsicon.png" id="arrow1" title="settings">
                     </div><br> -->
 
-                    <div class="general-button">
+                    <div class="general-button" id="create-channel-button">
                         Create Channel
-                    </div><br>
+                    </div>
                     
                     <a href="#" id="link"><div class="general-button" id="back" title="manage channels as an admin">
                         Back<img src="../images/arrow.png" id="arrow3">
-                    </div><br></a>
+                    </div></a>
                 </div>
         
             <div class="custom-body">
@@ -61,6 +61,22 @@
                         </div>
                     </div>
                 </div>
+                <div id="team-addition-form">
+                
+                    <div id="profile-pop-up">
+                            <label for="team-name" id="NameInput-placeholder" style="left: 50px;">Channel Name:</label>
+                                <input id="team-name" placeholder="Name" style="padding-left: 45px;"><br><br>
+                                <div class="general-button" id="create-team-button">
+                                    Create Channel
+                                </div>
+                                <div class="general-button" id="back1" style = "top: 25px; position: relative" onclick="document.getElementById('pop-up').style.display = 'none';">
+                                    Back
+                                </div>
+                                
+                    </div>
+                    </div>
+                    
+                    </div>
             </div>
             
         </div>
@@ -81,6 +97,7 @@
             const params = new URLSearchParams(window.location.search);
             let username = params.get("username");
             let teamname = params.get("teamname");
+            let channel  = params.get("channel" );
 
             const ws = new WebSocket("ws://localhost:8080"); // ✅ Connect to WebSocket server
 
@@ -112,7 +129,7 @@
                 }
             });
 
-            document.getElementById("admin-page-header").innerHTML = teamname;
+            document.getElementById("admin-page-header").innerHTML = teamname + " | " + channel;
             document.getElementById("team-info").innerHTML = `You: <p style='color: lightgreen;'>${username}<br><hr></p>`;
 
             // document.getElementById("text-bar").addEventListener("keypress", function(event) {
@@ -179,6 +196,7 @@
                     body: JSON.stringify({ 
                         username, 
                         teamname, 
+                        channel,
                         message: message // ✅ Only the message content
                     })
                 })
@@ -200,7 +218,7 @@
             }
 
             function fetchMessages() {
-                fetch(`http://localhost:3000/messages_teams/${teamname}`)
+                fetch(`http://localhost:3000/messages_teams/${teamname}/${channel}`)
                 .then(response => response.text()) // ✅ Log raw response before parsing
                 .then(text => {
                     console.log("📥 Raw server response:", text);
@@ -237,6 +255,14 @@
                         newDiv.style.borderRadius = "10px";
                         newDiv.style.padding = "15px";
                         newDiv.style.margin = "10px";
+                        newDiv.addEventListener("mouseover", () => {
+                            newDiv.style.boxShadow = "5px 5px 10px rgba(0, 0, 0, 0.5)";
+                        });
+
+                        newDiv.addEventListener("mouseout", () => {
+                            newDiv.style.boxShadow = "5px 5px 10px rgba(0, 0, 0, 0)";
+                        });
+                        newDiv.style.transition = "box-shadow 0.5s ease;"
                         if(username === msg.username){
                             newDiv.style.alignSelf = "flex-end";
                             newDiv.style.backgroundColor = "rgb(44, 121, 202)";
@@ -246,18 +272,107 @@
                             newDiv.style.color = "black";
                             newDiv.style.backgroundColor = "rgb(212, 212, 212)";
                         }
+
                         msgcontainer.appendChild(newDiv);
                         document.querySelector("#div-custom-body").appendChild(msgcontainer);
                         scrollToBottom();
                         document.getElementById("text-bar").value = "";
                     });
                 })
-                .catch(error => console.error("❌ Error fetching messages:", error));
-                
+                .catch(error => console.error("❌ Error fetching messages:", error)); 
+
+                fetch(`http://localhost:3000/channels/${teamname}`)
+                .then(response => response.text()) // ✅ Log raw response before parsing
+                .then(text => {
+                    console.log("📥 Raw server response:", text);
+                    return JSON.parse(text); // ✅ Parse only if it's valid JSON
+                })
+                .then(data => {
+                    data.channels.forEach(msg => {
+                        createChannel(msg.name);
+                        console.log(msg.name);
+                    })
+                })
             }
 
             document.addEventListener("DOMContentLoaded", fetchMessages);
             
+            document.getElementById("create-channel-button").addEventListener("click", () => {
+                document.getElementById("pop-up").style.display = "block";
+                document.getElementById("create-team-button").addEventListener("click", () => {
+                    let channelName = document.getElementById("team-name").value.trim();
+                    createChannel(channelName);
+                    fetch("http://localhost:3000/channels", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: channelName, team: teamname })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log(`✅ ${document.getElementById("team-name").value.trim()} channel created:`, data);
+                        } else {
+                            console.error("❌ Error creating general channel:", data.message);
+                        }
+                    })
+                    .catch(error => console.error("❌ Error:", error));
+                })
+                
+            })
+
+            function createChannel(name){
+                let channelDiv = document.createElement('div');
+                    channelDiv.classList.add('general-button');
+                    channelDiv.classList.add('channel');
+                    channelDiv.innerText = name;
+                    channelDiv.addEventListener("click", () => {
+                        window.location.href = `AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}&channel=${name}`;
+                    })
+                    document.getElementById("menu").appendChild(channelDiv);
+                    document.getElementById("back1").onclick();
+                    let hashDiv = document.createElement('div');
+                    hashDiv.style.fontSize = "20px";
+                    hashDiv.innerText = "#";
+                    hashDiv.style.marginRight = "10px";
+                    // hashDiv.style.alignSelf = "flex-start";
+                    hashDiv.style.float = "left";
+                    channelDiv.appendChild(hashDiv);
+
+                    let deleteChannelDiv = document.createElement('div');
+                    deleteChannelDiv.innerText = "❌";
+                    deleteChannelDiv.style.alignSelf = "flex-end";
+                    deleteChannelDiv.style.float = "right";
+                    deleteChannelDiv.style.height = "30px"
+                    deleteChannelDiv.style.width = "30px";
+                    deleteChannelDiv.style.display = "none";
+                    channelDiv.addEventListener("mouseover", () => {
+                        deleteChannelDiv.style.display = "flex";
+                    })
+                    channelDiv.addEventListener("mouseout", () => {
+                        deleteChannelDiv.style.display = "none";
+                    })
+                    deleteChannelDiv.addEventListener("click", (event) => {
+                        if(confirm(`Delete ${name} Channel?`)){
+                        event.preventDefault();
+                        fetch(`http://localhost:3000/channels/${name}`, {
+                            method: "DELETE",
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log("✅ Channel deleted:", data);
+                                alert(`🎉 Channel '${channel}' deleted successfully!`);
+                                window.location.href = `AdminPage_Template.html?username=${username}&teamname=${teamname}`;
+                            } else {
+                                alert("❌ Error deleting Channel: " + data.message);
+                            }
+                        })
+                        .catch(error => console.error("❌ Error:", error));
+                        window.location.reload();
+                    }
+                    });
+                    channelDiv.appendChild(deleteChannelDiv)
+            }
             // setInterval(() => {
             //     fetch("http://localhost:3000/users/2/messages")
             //     .then(response => response.json())

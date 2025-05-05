@@ -73,7 +73,6 @@ document.querySelector("#add-teams").onclick = function() {
         }
     });
 
-// else alert("It doesnt even exist yet bud!");
 function generateDiv() {
     // Create a new div element
     let newDiv = document.createElement("div");
@@ -103,7 +102,8 @@ function generateDiv() {
         console.log("genDiv called");
     })
     .catch(error => console.error("❌ Error:", error));
-
+    
+    console.log("General channel added!");
     // Add content to the new div
     newDiv.innerHTML = document.getElementById("team-name").value[0];
     newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong> | ${document.getElementById("team-desc").value}`;
@@ -244,6 +244,22 @@ function generateDiv() {
     
             newerDiv.id = "generatedNew";
             let teamname = document.getElementById("team-name").value;
+            let general = "general";
+            fetch("http://localhost:3000/channels", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: "general", team: teamName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(`✅ ${general} channel created:`, data);
+                } else {
+                    console.error("❌ Error creating general channel:", data.message);
+                }
+            })
+            .catch(error => console.error("❌ Error:", error));
+            
             newDiv.onclick = function() {
                 window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
             }
@@ -440,12 +456,13 @@ function renderTeam() {
     
     newerDiv.id = "generatedNew";
     let teamname = document.getElementById("team-name").value;
+    
     newDiv.onclick = function() {
-        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}&channel=${"general"}`;
     }
 
     newerDiv.onclick = function() {
-        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
+        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}&channel=${"general"}`;
     }
 
     newerDiv.addEventListener("mouseover", () =>{
@@ -456,6 +473,7 @@ function renderTeam() {
     });
     newerDivText.style.float = "left";
     deleteTeamDiv.addEventListener("click", (event) => {
+        if(confirm(`Delete ${teamname} Team?`)){
         event.preventDefault();
         fetch(`http://localhost:3000/teams/${teamname}`, {
             method: "DELETE",
@@ -472,6 +490,7 @@ function renderTeam() {
         })
         .catch(error => console.error("❌ Error:", error));
         window.location.reload();
+    }
     });
     newerDiv.appendChild(newerDivText);
     newerDiv.appendChild(deleteTeamDiv);
@@ -480,9 +499,27 @@ function renderTeam() {
     back.onclick();
 }
 
+function createChannel(name){
+    let channelDiv = document.createElement('div');
+        channelDiv.classList.add('general-button');
+        channelDiv.classList.add('channel');
+        channelDiv.innerText = name;
+        document.getElementById("menu").appendChild(channelDiv);
+        document.getElementById("back1").onclick();
+}
+
 const adminPageHeader = document.getElementById("admin-page-header");
 const params = new URLSearchParams(window.location.search);
 const username = params.get("username");
+
+fetch(`http://localhost:3000/users/${username}/email`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("usernameInfo").innerText = username
+        document.getElementById("emailInfo").innerText = data.email;
+    });
+let email = document.getElementById("emailInfo").innerText;
+
 
 if (username) {
     adminPageHeader.innerText = `Welcome, ${username}!`;
