@@ -84,7 +84,7 @@ app.delete("/teams/:teamname", (req, res) => {
 
 // ✅ Fetch All Users
 app.get('/users', (req, res) => {
-    connection.query("SELECT * FROM users", (err, results) => {
+    connection.query("SELECT username FROM users", (err, results) => {
         if (err) {
             console.error("❌ Error fetching users:", err);
             return res.status(500).send("Internal Server Error");
@@ -186,6 +186,25 @@ app.post("/messages_teams", (req, res) => {
     });
 });
 
+app.post("/direct_messages", (req, res) => {
+    const { username, target_user, message, channel } = req.body;
+
+    if (!username || !message || !target_user || !channel) {
+        return res.status(400).json({ success: false, message: "Username, teamname, and message required!" });
+    }
+
+    // ✅ Ensure message does not include username formatting
+    const cleanMessage = message.trim(); // Remove any HTML formatting
+
+    const sql = "INSERT INTO direct_messages (username, target_user, message, channel) VALUES (?, ?, ?, ?)";
+    connection.query(sql, [username, target_user, cleanMessage, channel], (err, result) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        res.json({ success: true, message: "Message sent!", messageId: result.insertId });
+    });
+});
+
 app.post("/channels", (req, res) => {
     const { name, team } = req.body;
 
@@ -265,6 +284,18 @@ app.get("/messages_teams", (req, res) => {
     });
 });
 
+app.get("/direct_messages", (req, res) => {
+    const sql = "SELECT username, target_user, message, created_at FROM direct_messages ORDER BY created_at ASC";
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        console.log("✅ Retrieved Messages:", results); // ✅ Debugging step
+        res.json({ success: true, messages: results });
+    });
+});
+
 // app.get("/messages_teams/:teamname", (req, res) => {
 //     const { teamname } = req.params;
 //     const sql = "SELECT username, teamname, message, created_at FROM messages_teams WHERE teamname = ? ORDER BY created_at ASC";
@@ -293,6 +324,35 @@ app.get("/messages_teams/:teamname/:channel", (req, res) => {
     });
 });
 
+app.get("/direct_messages/:target_user/:channel", (req, res) => {
+    const { target_user, channel } = req.params;
+
+    const sql = "SELECT username, target_user, channel, message, created_at FROM direct_messages WHERE target_user = ? AND channel = ? ORDER BY created_at ASC";
+
+    connection.query(sql, [target_user, channel], (err, results) => {
+        if (err) {
+            console.error("❌ Error retrieving messages:", err);
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        console.log(`✅ Retrieved Messages for Team "${target_user}", Channel "${channel}":`, results);
+        res.json({ success: true, messages: results });
+    });
+});
+
+app.get("/direct_messages/:username/:target_user/:channel", (req, res) => {
+    const { username, target_user, channel } = req.params;
+
+    const sql = "SELECT * FROM direct_messages WHERE ((username = ? AND target_user = ?) OR (target_user = ? AND username = ?)) AND channel = ? ORDER BY created_at ASC";
+
+    connection.query(sql, [username, target_user, username, target_user, channel], (err, results) => {
+        if (err) {
+            console.error("❌ Error retrieving messages:", err);
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+        console.log(`✅ Retrieved Messages for user "${target_user}" from ${username}, Channel "${channel}":`, results);
+        res.json({ success: true, messages: results });
+    });
+});
 
 // ✅ Delete All Messages & Reset IDs
 app.delete('/messages', (req, res) => {

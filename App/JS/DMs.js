@@ -21,9 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 document.getElementById("team").onclick = () => {
-    window.location.href = `DirectMsg.html?username=${username}`;
+    window.location.href = `AdminPage_Template.html?username=${username}`;
 }
+
 const profile_icon_popup = document.querySelector(".profile-icon");
 const popup = document.querySelector("#pop-up");
 const profileInfo = document.querySelector(".profile-name");
@@ -54,25 +56,25 @@ document.querySelector("#add-teams").onclick = function() {
 
     document.getElementById("create-team-button").addEventListener("click", async () => {
         generateDiv();
-        const team_name = document.getElementById("team-name").value;
-        const team_desc = document.getElementById("team-desc").value;
+        // const team_name = document.getElementById("team-name").value;
+        // const team_desc = document.getElementById("team-desc").value;
         
-        console.log("📤 Sending Data:", { team_name, team_desc }); // ✅ Debugging
+        // console.log("📤 Sending Data:", { team_name, team_desc }); // ✅ Debugging
         
-        const response = await fetch("http://localhost:3000/teams", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: team_name, description: team_desc }) // ✅ Correct property names!
-        });
+        // const response = await fetch("http://localhost:3000/teams", {
+        //     method: "POST",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ name: team_name, description: team_desc }) // ✅ Correct property names!
+        // });
     
-        const data = await response.json();
-        if (data.success) {
-            alert("✅ Team created successfully!");
-            document.getElementById("team-name").value = "";
-            document.getElementById("team-description").value = "";
-        } else {
-            alert("❌ Error creating team!");
-        }
+        // const data = await response.json();
+        // if (data.success) {
+        //     alert("✅ Team created successfully!");
+        //     document.getElementById("team-name").value = "";
+        //     document.getElementById("team-description").value = "";
+        // } else {
+        //     alert("❌ Error creating team!");
+        // }
     });
 
 function generateDiv() {
@@ -83,32 +85,32 @@ function generateDiv() {
     let roundDiv = document.createElement('div');
     let deleteTeamDiv = document.createElement('div');
     if (!document.getElementById("team-name").value) {
-        alert("❌ Team name is required!");
+        alert("❌ A user's name is required!");
         return;
     }
-    let teamName = document.getElementById("team-name").value;
-    let teamDescription = document.getElementById("team-desc").value;
-    fetch("http://localhost:3000/teams", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: teamName, description: teamDescription })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log("✅ Team created:", data);
-            alert("🎉 Team created successfully!");
-        } else {
-            alert("❌ Error creating team: " + data.message);
-        }
-        console.log("genDiv called");
-    })
-    .catch(error => console.error("❌ Error:", error));
+    // let teamName = document.getElementById("team-name").value;
+    // let teamDescription = document.getElementById("team-desc").value;
+    // fetch("http://localhost:3000/teams", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ name: teamName, description: teamDescription })
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     if (data.success) {
+    //         console.log("✅ Team created:", data);
+    //         alert("🎉 Team created successfully!");
+    //     } else {
+    //         alert("❌ Error creating team: " + data.message);
+    //     }
+    //     console.log("genDiv called");
+    // })
+    // .catch(error => console.error("❌ Error:", error));
     
-    console.log("General channel added!");
+    // console.log("General channel added!");
     // Add content to the new div
     newDiv.innerHTML = document.getElementById("team-name").value[0];
-    newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong> | ${document.getElementById("team-desc").value}`;
+    newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong>`;
     roundDiv.innerHTML = document.getElementById("team-name").value[0];
 
     var r = Math.floor(Math.random() * 256);
@@ -246,21 +248,21 @@ function generateDiv() {
     
             newerDiv.id = "generatedNew";
             let teamname = document.getElementById("team-name").value;
-            let general = "general";
-            fetch("http://localhost:3000/channels", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: "general", team: teamName })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`✅ ${general} channel created:`, data);
-                } else {
-                    console.error("❌ Error creating general channel:", data.message);
-                }
-            })
-            .catch(error => console.error("❌ Error:", error));
+            // let general = "general";
+            // fetch("http://localhost:3000/channels", {
+            //     method: "POST",
+            //     headers: { "Content-Type": "application/json" },
+            //     body: JSON.stringify({ name: "general", team: teamName })
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         console.log(`✅ ${general} channel created:`, data);
+            //     } else {
+            //         console.error("❌ Error creating general channel:", data.message);
+            //     }
+            // })
+            // .catch(error => console.error("❌ Error:", error));
             
             newDiv.onclick = function() {
                 window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}`;
@@ -277,28 +279,28 @@ function generateDiv() {
                 deleteTeamDiv.style.display = "none";
             });
             newerDivText.style.float = "left";
-            deleteTeamDiv.addEventListener("click", (event) => {
-                event.preventDefault();
-                fetch(`http://localhost:3000/teams/${teamname}`, {
-                    method: "DELETE",
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("✅ Team deleted:", data);
-                        alert(`🎉 Team '${teamname}' deleted successfully!`);
-                    } else {
-                        alert("❌ Error deleting team: " + data.message);
-                    }
-                })
-                .catch(error => console.error("❌ Error:", error));
-            });
+            // deleteTeamDiv.addEventListener("click", (event) => {
+            //     event.preventDefault();
+            //     fetch(`http://localhost:3000/teams/${teamname}`, {
+            //         method: "DELETE",
+            //     })
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         if (data.success) {
+            //             console.log("✅ Team deleted:", data);
+            //             alert(`🎉 Team '${teamname}' deleted successfully!`);
+            //         } else {
+            //             alert("❌ Error deleting team: " + data.message);
+            //         }
+            //     })
+            //     .catch(error => console.error("❌ Error:", error));
+            // });
             newerDiv.appendChild(newerDivText);
             newerDiv.appendChild(deleteTeamDiv);
             console.log("delete team added!");
             newerDiv.appendChild(roundDiv);   
             document.getElementById("custom-team-container").appendChild(newerDiv);   
-            window.location.reload();
+            // window.location.reload();
             back.onclick();
 }
 
@@ -315,7 +317,7 @@ function renderTeam() {
 
     // Add content to the new div
     newDiv.innerHTML = document.getElementById("team-name").value[0];
-    newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong> | ${document.getElementById("team-desc").value}`;
+    newerDivText.innerHTML = `<strong>${document.getElementById("team-name").value}</strong>`;
     roundDiv.innerHTML = document.getElementById("team-name").value[0];
 
     let deleteTeamDiv = document.createElement('div');
@@ -460,11 +462,11 @@ function renderTeam() {
     let teamname = document.getElementById("team-name").value;
     
     newDiv.onclick = function() {
-        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}&channel=${"general"}`;
+        window.location.href = `../HTML/DMbox.html?username=${username}&teamname=${teamname}&channel=${"general"}`;
     }
 
     newerDiv.onclick = function() {
-        window.location.href = `../HTML/AdminPage_Template_Teams.html?username=${username}&teamname=${teamname}&channel=${"general"}`;
+        window.location.href = `../HTML/DMbox.html?username=${username}&teamname=${teamname}&channel=${"general"}`;
     }
 
     newerDiv.addEventListener("mouseover", () =>{
@@ -474,26 +476,26 @@ function renderTeam() {
         deleteTeamDiv.style.display = "none";
     });
     newerDivText.style.float = "left";
-    deleteTeamDiv.addEventListener("click", (event) => {
-        if(confirm(`Delete ${teamname} Team?`)){
-        event.preventDefault();
-        fetch(`http://localhost:3000/teams/${teamname}`, {
-            method: "DELETE",
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("✅ Team deleted:", data);
-                alert(`🎉 Team '${teamname}' deleted successfully!`);
-                window.location.href = `AdminPage_Template.html?username=${username}`;
-            } else {
-                alert("❌ Error deleting team: " + data.message);
-            }
-        })
-        .catch(error => console.error("❌ Error:", error));
-        window.location.reload();
-    }
-    });
+    // deleteTeamDiv.addEventListener("click", (event) => {
+    //     if(confirm(`Delete ${teamname} Team?`)){
+    //     event.preventDefault();
+    //     fetch(`http://localhost:3000/teams/${teamname}`, {
+    //         method: "DELETE",
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.success) {
+    //             console.log("✅ Team deleted:", data);
+    //             alert(`🎉 Team '${teamname}' deleted successfully!`);
+    //             window.location.href = `AdminPage_Template.html?username=${username}`;
+    //         } else {
+    //             alert("❌ Error deleting team: " + data.message);
+    //         }
+    //     })
+    //     .catch(error => console.error("❌ Error:", error));
+    //     window.location.reload();
+    // }
+    // });
     newerDiv.appendChild(newerDivText);
     newerDiv.appendChild(deleteTeamDiv);
     newerDiv.appendChild(roundDiv);   
@@ -501,14 +503,14 @@ function renderTeam() {
     back.onclick();
 }
 
-function createChannel(name){
-    let channelDiv = document.createElement('div');
-        channelDiv.classList.add('general-button');
-        channelDiv.classList.add('channel');
-        channelDiv.innerText = name;
-        document.getElementById("menu").appendChild(channelDiv);
-        document.getElementById("back1").onclick();
-}
+// function createChannel(name){
+//     let channelDiv = document.createElement('div');
+//         channelDiv.classList.add('general-button');
+//         channelDiv.classList.add('channel');
+//         channelDiv.innerText = name;
+//         document.getElementById("menu").appendChild(channelDiv);
+//         document.getElementById("back1").onclick();
+// }
 
 const adminPageHeader = document.getElementById("admin-page-header");
 const params = new URLSearchParams(window.location.search);
@@ -528,22 +530,22 @@ if (username) {
 }
 
 function fetchTeams() {
-    let teamname = document.getElementById("team-name").value;
-    fetch(`http://localhost:3000/teams`)
+    // let teamname = document.getElementById("team-name").value;
+    fetch(`http://localhost:3000/users`)
     .then(response => response.json())
     .then(data => {
         console.log("✅ Fetched teams:", data); // ✅ Debugging
 
-        if (!data.teams || !Array.isArray(data.teams)) {
-            console.error("❌ Expected an array but got:", data);
-            return;
-        }
+        // if (!data.teams || !Array.isArray(data.teams)) {
+        //     console.error("❌ Expected an array but got:", data);
+        //     return;
+        // }
 
-        data.teams.forEach(team => {
-            document.getElementById("team-name").value = team.name.trim();
-            document.getElementById("team-desc").value = team.description;
+        data.forEach(user => {
+            document.getElementById("team-name").value = user.username.trim();
+            // document.getElementById("team-desc").value = team.description;
             renderTeam();
-            console.log(team.name + " test");
+            console.log(user.username + " test");
         });
     })
     .catch(error => console.error("❌ Error fetching teams:", error));
