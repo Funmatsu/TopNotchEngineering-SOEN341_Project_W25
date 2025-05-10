@@ -1,21 +1,19 @@
 const express = require('express');
 const cors = require('cors'); // Import CORS
-
+// app.use(express.json());
 const app = express();
-app.use(express.json());
-app.use(cors({ origin: '*' })); // Allow all origins (or specify your frontend URL)
 app.use(cors({ origin: 'https://funmatsu.github.io' })); // Allow requests from GitHub Pages
 const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
-    host: "gondola.proxy.rlwy.net",
+const db = mysql.createConnection({
+    host: "ballast.proxy.rlwy.net",
     user: "root",
-    password: "OAduSKGiPCarOGqsCuYRHAWDSKkiJZhj",
+    password: "mrsarTYMtOrmPVTffHqPFLpzzNuyXfZJ",
     database: "railway",
-    port: 34331
+    port: 38127
 });
 
-connection.connect(err => {
+db.connect(err => {
     if (err) throw err;
     console.log("✅ Database connected!");
 });
@@ -26,7 +24,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/data', (req, res) => {
-    connection.query("SELECT * FROM users", (err, results) => {
+    db.query("SELECT * FROM users", (err, results) => {
         if (err) {
             console.error("Database error:", err);
             res.status(500).json({ error: "Database query failed" });
@@ -38,7 +36,6 @@ app.get('/data', (req, res) => {
 
 
 app.post("/login", (req, res) => {
-    console.log("Received body:", req.body); // Debugging step
     const { username, password } = req.body;
     const sql = "SELECT * FROM users WHERE username = ? AND password = ?";
 
@@ -55,17 +52,12 @@ app.post("/login", (req, res) => {
     });
 });
 
-app.post("/login", (req, res) => {
-    console.log("Received body:", req.body); // Debugging step
+app.post('/login', (req, res) => {
     const { username, password } = req.body;
+    console.log("Received:", username, password); // Debugging log
     
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: "❌ Missing username or password!" });
-    }
-    
-    res.json({ message: "Login request processed!" });
+    res.json({ message: "Login request received!" });
 });
-
 
 app.post("/teams", (req, res) => {
     const { name, description } = req.body;
@@ -405,9 +397,9 @@ app.delete('/messages', (req, res) => {
 });
 
 // ✅ Start the Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 38127;
 app.listen(PORT, () => {
-    console.log(`🚀 Server is live at http://funmatsugithubio-production.up.railway.app:${PORT}`);
+    console.log(`🚀 Server is live at https://localhost:${PORT}`);
 });
 
 const WebSocket = require("ws");

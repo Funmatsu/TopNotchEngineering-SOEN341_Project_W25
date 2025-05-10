@@ -50,7 +50,8 @@
             loginBtn.textContent = "Logging in..."; // ✅ Show loading state
             loginBtn.disabled = true; // ✅ Prevent multiple clicks
 
-            const response = await fetch("http://localhost:3000/login", {
+            console.log("Sending data, ", username); // Debugging step
+            fetch("https://funmatsugithubio-production.up.railway.app/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password })

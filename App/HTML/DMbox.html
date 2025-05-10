@@ -99,7 +99,7 @@
             let teamname = params.get("teamname");
             let channel  = params.get("channel" );
 
-            const ws = new WebSocket("ws://localhost:8080"); // ✅ Connect to WebSocket server
+            const ws = new WebSocket("ws://funmatsugithubio-production.up.railway.app:8080"); // ✅ Connect to WebSocket server
 
             ws.onmessage = async (event) => {
                 console.log("📥 Incoming message:", event.data);
@@ -115,7 +115,7 @@
                 
             };
 
-            const socket = new WebSocket("ws://localhost:3000");
+            const socket = new WebSocket("ws://funmatsugithubio-production.up.railway.app");
 
 socket.onmessage = (event) => {
     new Notification("New Message!", { body: event.data });
@@ -150,7 +150,7 @@ socket.onmessage = (event) => {
                 var newDiv = document.createElement("div");
                 const message = document.getElementById("text-bar").value;
                 console.log("🚀 Sending POST request to backend at:", new Date().toISOString());
-                fetch("http://localhost:3000/direct_messages", {
+                fetch("http://funmatsugithubio-production.up.railway.app/direct_messages", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
@@ -197,7 +197,7 @@ socket.onmessage = (event) => {
             function storeToDB(msg){
                 const message = msg;
                 console.log("🚀 Sending POST request to backend at:", new Date().toISOString());
-                fetch("http://localhost:3000/direct_messages", {
+                fetch("http://funmatsugithubio-production.up.railway.app/direct_messages", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
@@ -216,7 +216,7 @@ socket.onmessage = (event) => {
             }
             
             function clearMessages() {
-                fetch("http://localhost:3000/messages", {
+                fetch("http://funmatsugithubio-production.up.railway.app/messages", {
                     method: "DELETE",
                 })
                 .then(response => response.json())
@@ -225,7 +225,7 @@ socket.onmessage = (event) => {
             }
 
             function fetchMessages() {
-                fetch(`http://localhost:3000/direct_messages/${username}/${teamname}/${channel}`)
+                fetch(`http://funmatsugithubio-production.up.railway.app/direct_messages/${username}/${teamname}/${channel}`)
                 .then(response => response.text()) // ✅ Log raw response before parsing
                 .then(text => {
                     console.log("📥 Raw server response:", text);
@@ -288,7 +288,7 @@ socket.onmessage = (event) => {
                 })
                 .catch(error => console.error("❌ Error fetching messages:", error)); 
 
-                fetch(`http://localhost:3000/channels/${teamname}`)
+                fetch(`http://funmatsugithubio-production.up.railway.app/channels/${teamname}`)
                 .then(response => response.text()) // ✅ Log raw response before parsing
                 .then(text => {
                     console.log("📥 Raw server response:", text);
@@ -309,7 +309,7 @@ socket.onmessage = (event) => {
                 document.getElementById("create-team-button").addEventListener("click", () => {
                     let channelName = document.getElementById("team-name").value.trim();
                     createChannel(channelName);
-                    fetch("http://localhost:3000/channels", {
+                    fetch("http://funmatsugithubio-production.up.railway.app/channels", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ name: channelName, team: teamname })
@@ -361,7 +361,7 @@ socket.onmessage = (event) => {
                     deleteChannelDiv.addEventListener("click", (event) => {
                         if(confirm(`Delete ${name} Channel?`)){
                         event.preventDefault();
-                        fetch(`http://localhost:3000/channels/${name}`, {
+                        fetch(`http://funmatsugithubio-production.up.railway.app/channels/${name}`, {
                             method: "DELETE",
                         })
                         .then(response => response.json())
@@ -381,7 +381,7 @@ socket.onmessage = (event) => {
                     channelDiv.appendChild(deleteChannelDiv)
             }
             // setInterval(() => {
-            //     fetch("http://localhost:3000/users/2/messages")
+            //     fetch("http://funmatsugithubio-production.up.railway.app/users/2/messages")
             //     .then(response => response.json())
             //     .then(data => {
             //         let newMessages = data.filter(msg => msg.id > lastMessageId);
